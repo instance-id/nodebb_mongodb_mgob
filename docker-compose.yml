@@ -1,0 +1,109 @@
+version: '3.7'
+
+services:
+    mongodb:
+        image: mongo
+        container_name: mongo
+        restart: always
+        environment:
+            - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USERNAME}
+            - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD}
+            - MONGO_ROOT_USER=${MONGO_ROOT_USERNAME}
+            - MONGO_ROOT_PASS=${MONGO_ROOT_PASSWORD}
+            - NODEBB_MONGO_USER=${NODEBB_USER}
+            - NODEBB_MONGO_PASS=${NODEBB_PASSWORD}
+            - NODEBB_MONGO_DB=${NODEBB_DATABASE}
+            - MONGO_INITDB_DATABASE=${NODEBB_DATABASE}
+        volumes:
+            - mongodb_init:/docker-entrypoint-initdb.d/
+            - mongodb_data:/data/db
+        ports:
+            - 27017:27017
+        networks:
+            - nodebb
+
+    nodebb:
+        build: nodebb/NodeBB
+        container_name: nodebb
+        # command: bash -c "./nodebb upgrade && ./nodebb start" # Uncomment this if NodeBB says you need to update and then restart
+        ports:
+            - "4567:4567"
+        depends_on:
+            - mongodb
+        volumes:
+            - nodebb_init:/docker-entrypoint-initdb.d/
+            - ${PROJECT_ROOT}/nodebb/nodebb-config/config.json:/usr/src/app/config.json
+            - nodebb_build:/usr/src/app/build
+            - nodebb_public:/usr/src/app/public
+        restart: always
+        networks:
+            - nodebb
+
+    mgob:
+        image: stefanprodan/mgob:latest
+        container_name: mgob
+        restart: always
+        volumes:
+          - ${PROJECT_ROOT}/nodebb/mgob/mgob-config:/config
+          - mgob-storage:/storage
+          - mgob-data:/data
+          - mgob-tmp:/tmp
+        depends_on:
+          - mongodb
+        ports:
+          - 8090:8090
+        networks:
+          - nodebb
+
+volumes:
+  # --- MongoDB volume mappings ---------------------------------------------------------
+  mongodb_init:
+    driver: local
+    driver_opts:
+      o: bind
+      device: ${PROJECT_ROOT}/nodebb/mongodb/mongo-init
+  mongodb_data:
+    driver: local
+    driver_opts:
+      o: bind
+      device: /mnt/disks/data_mongodb/db # Ideally, you want your MongoDB data on a separate persistent non-boot drive
+
+  # --- Nodebb volume mappings ----------------------------------------------------------
+  nodebb_init:
+    driver: local
+    driver_opts:
+      o: bind
+      device: ${PROJECT_ROOT}/nodebb/nodebb-init
+  nodebb_build:
+    driver: local
+    driver_opts:
+      o: bind
+      device: ${PROJECT_ROOT}/nodebb/nodebb-data/build
+  nodebb_public:
+    driver: local
+    driver_opts:
+      o: bind
+      device: ${PROJECT_ROOT}/nodebb/nodebb-data/public
+  
+  # --- Mgob backup volume mappings -----------------------------------------------------
+  mgob-storage:
+    driver: local
+    driver_opts:
+      o: bind
+      device: /mnt/disks/data_mongodb/_backup/storage
+  mgob-data:
+    driver: local
+    driver_opts:
+      o: bind
+      device: /mnt/disks/data_mongodb/_backup/data
+  mgob-tmp:
+    driver: local
+    driver_opts:
+      o: bind
+      device: /mnt/disks/data_mongodb/_backup/tmp
+
+# --- Shared container network ----------------------------------------------------------
+networks:
+  nodebb:
+    driver: bridge
+    name: nodebb_net

@@ -1,0 +1,34 @@
+scheduler:
+  # run every day at 6:00 and 18:00 UTC
+  cron: "0 6,18 */1 * *"
+  # number of backups to keep locally
+  retention: 5
+  # backup operation timeout in minutes
+  timeout: 60
+target:
+  # mongod IP or host name
+  host: "mongodb"
+  # mongodb port
+  port: 27017
+  # mongodb database name, leave blank to backup all databases
+  database: "nodebb_database"
+  # leave blank if auth is not enabled
+  username: "mongo_root_user"
+  password: "mongo_root_pass"
+  # add custom params to mongodump (eg. Auth or SSL support), leave blank if not needed
+  params: "--authenticationDatabase admin"
+# GCloud upload (optional)
+gcloud:
+  bucket: "example-backups"
+  keyFilePath: /config/service-account.json
+
+# # Email notifications (optional)
+# smtp:
+#   server: smtp.company.com
+#   port: 465
+#   username: user
+#   password: secret
+#   from: mgob@company.com
+#   to:
+#     - devops@company.com
+#     - alerts@company.com

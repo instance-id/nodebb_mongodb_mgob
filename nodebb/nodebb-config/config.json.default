@@ -1,0 +1,14 @@
+{
+    "url": "https://your-site-url.com",
+    "secret": "***Random*Secret***",
+    "database": "mongo",
+    "port": "4567",
+    "mongo": {
+        "host": "mongodb",
+        "port": "27017",
+        "username": "your_nodebb_user",
+        "password": "your_nodebb_pass",
+        "database": "your_nodebb_db",
+        "uri": ""
+    }
+}

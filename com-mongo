@@ -1,0 +1,4 @@
+#!/bin/bash
+CMD=${1:-"/bin/bash"} && shift
+PATH=$PATH:./:./bin:../bin:../../bin
+docker-compose run --rm mongodb $CMD $@

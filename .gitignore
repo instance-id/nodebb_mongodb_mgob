@@ -1,0 +1,8 @@
+# Ignore NodeBB mounted directories and Git files
+nodebb/nodebb-data/public/*
+nodebb/nodebb-data/build/*
+nodebb/NodeBB/*
+.env
+service-account.json
+config.json
+mongodb_backup.yml
