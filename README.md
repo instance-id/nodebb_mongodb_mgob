@@ -1,3 +1,3 @@
 ## NodeBB MongoDB MGob
 
-Going to write up proper instructions for this soon!
+A dockerized setup of NodeBB, MongoDB, and MGOB for backups using Google Cloud buckets.
